@@ -1,0 +1,13 @@
+version: "3"
+services:
+  denso-energy-visualize-app:
+    build: .
+    container_name: denso-energy-visualize-app
+    ports:
+        - "5000:3000"
+    networks:
+        - denso
+    restart: always
+networks:
+  denso:
+  
