@@ -1,6 +1,11 @@
-import { OEECycleTime, OEEDekidakaItem, OEEFaultOccurrence, OEEProduction } from '@/types/oee-dashboard.type'
-import create from 'zustand'
-import { IOEEDashbaordState } from './interface/oee-dashboard.interface'
+import {
+  OEECycleTime,
+  OEEDekidakaItem,
+  OEEFaultOccurrence,
+  OEEProduction,
+} from "@/types/oee-dashboard.type";
+import { create } from "zustand";
+import { IOEEDashbaordState } from "./interface/oee-dashboard.interface";
 
 export const OEEDashboardStore = create<IOEEDashbaordState>((set, get) => ({
   production: undefined,
@@ -9,15 +14,15 @@ export const OEEDashboardStore = create<IOEEDashbaordState>((set, get) => ({
   dekidakaList: [],
 
   setProduction(production: OEEProduction) {
-    set({ production })
+    set({ production });
   },
   setCycleTime(cycleTime: OEECycleTime) {
-    set({ cycleTime })
+    set({ cycleTime });
   },
   setDekidakaList(dekidakaList: OEEDekidakaItem[]) {
-    set({ dekidakaList })
+    set({ dekidakaList });
   },
   setFaultOccurrence(faultOccurrence: OEEFaultOccurrence) {
-    set({ faultOccurrence })
+    set({ faultOccurrence });
   },
-}))
+}));

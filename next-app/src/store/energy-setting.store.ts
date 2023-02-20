@@ -1,39 +1,40 @@
-import create from 'zustand'
-import moment from 'moment'
-import { IEnergySettingState } from './interface/energy-setting.interface'
+import moment from "moment";
+import { create } from "zustand";
+import { IEnergySettingState } from "./interface/energy-setting.interface";
 
 export const EnergySettingStore = create<IEnergySettingState>((set, get) => ({
   productMapToLineRecord: {},
 
-  selectedProduct: '',
-  selectedProductLine: '',
-  selectedDate: moment().format('YYYY-MM-DD'),
+  selectedProduct: "",
+  selectedProductLine: "",
+  selectedDate: moment().format("YYYY-MM-DD"),
 
-  productList () {
-    return Object.keys(get().productMapToLineRecord)
+  productList() {
+    return Object.keys(get().productMapToLineRecord);
   },
-  productLineList () {
-    return get().productMapToLineRecord?.[get().selectedProduct] ?? []
+  productLineList() {
+    return get().productMapToLineRecord?.[get().selectedProduct] ?? [];
   },
 
   setProductMapToLineRecord(productMapToLineRecord: Record<string, string[]>) {
-    set({ productMapToLineRecord })
+    set({ productMapToLineRecord });
   },
   setSelectedProduct(selectedProduct: string) {
-    set({ selectedProduct })
+    set({ selectedProduct });
   },
   setSelectedProductLine(selectedProductLine: string) {
-    set({ selectedProductLine })
+    set({ selectedProductLine });
   },
   setSelectedDate(selectedDate: string) {
-    set({ selectedDate })
+    set({ selectedDate });
   },
 
-  resetSelectionState () {
+  resetSelectionState() {
     set({
-      selectedProduct: get().productList()?.[0] ?? '',
-      selectedProductLine: get().productMapToLineRecord?.[get().productList()?.[0]]?.[0] ?? '',
-      selectedDate: moment().format('YYYY-MM-DD')
-    })
-  }
-}))
+      selectedProduct: get().productList()?.[0] ?? "",
+      selectedProductLine:
+        get().productMapToLineRecord?.[get().productList()?.[0]]?.[0] ?? "",
+      selectedDate: moment().format("YYYY-MM-DD"),
+    });
+  },
+}));

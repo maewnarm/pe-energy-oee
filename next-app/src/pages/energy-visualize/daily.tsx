@@ -1,35 +1,44 @@
-import Head from 'next/head'
-import type { NextPage } from 'next'
-import Layout from '@/components/layout'
-import { AirDailyStore, ElectricDailyStore, EnergySettingStore } from '@/store'
-import EnergyVisualizeSelection from '@/views/energy-visualize-selection'
-import { useEffect } from 'react'
-import EnergyVisualizeStackedBarChart from '@/views/energy-visualize-stacked-bar-chart'
-import { ConvertkWhTokgCO2e, Convertm3TokgCO2e } from '@/parser/unit.parser'
-import { fetchAirDaily, fetchElectricDaily } from '@/actions'
+import { fetchAirDaily, fetchElectricDaily } from "@/actions";
+import Layout from "@/components/layout";
+import { ConvertkWhTokgCO2e, Convertm3TokgCO2e } from "@/parser/unit.parser";
+import { AirDailyStore, ElectricDailyStore, EnergySettingStore } from "@/store";
+import EnergyVisualizeSelection from "@/views/energy-visualize-selection";
+import EnergyVisualizeStackedBarChart from "@/views/energy-visualize-stacked-bar-chart";
+import type { NextPage } from "next";
+import Head from "next/head";
+import { useEffect } from "react";
 
 const EnergyDaily: NextPage = () => {
-  const { selectedProduct, selectedProductLine, selectedDate } = EnergySettingStore()
-  const electricDailyStore = ElectricDailyStore()
-  const airDailyStore = AirDailyStore()
+  const { selectedProduct, selectedProductLine, selectedDate } =
+    EnergySettingStore();
+  const electricDailyStore = ElectricDailyStore();
+  const airDailyStore = AirDailyStore();
 
   useEffect(() => {
-    let electricAbortController: AbortController
-    let airAbortController: AbortController
+    let electricAbortController: AbortController;
+    let airAbortController: AbortController;
 
-    if (selectedProduct !== '' && selectedProductLine !== '' && selectedDate !== '') {
-      electricAbortController = new AbortController()
-      fetchElectricDaily(selectedProduct, selectedProductLine, selectedDate, { signal: electricAbortController.signal })
+    if (
+      selectedProduct !== "" &&
+      selectedProductLine !== "" &&
+      selectedDate !== ""
+    ) {
+      electricAbortController = new AbortController();
+      fetchElectricDaily(selectedProduct, selectedProductLine, selectedDate, {
+        signal: electricAbortController.signal,
+      });
 
-      airAbortController = new AbortController()
-      fetchAirDaily(selectedProduct, selectedProductLine, selectedDate, { signal: electricAbortController.signal })
+      airAbortController = new AbortController();
+      fetchAirDaily(selectedProduct, selectedProductLine, selectedDate, {
+        signal: electricAbortController.signal,
+      });
     }
 
     return () => {
-      electricAbortController?.abort()
-      airAbortController?.abort()
-    }
-  }, [selectedProduct, selectedProductLine, selectedDate])
+      electricAbortController?.abort();
+      airAbortController?.abort();
+    };
+  }, [selectedProduct, selectedProductLine, selectedDate]);
 
   return (
     <>
@@ -39,17 +48,16 @@ const EnergyDaily: NextPage = () => {
           <link rel="icon" href="/favicon.ico" />
         </Head>
       </div>
-      <Layout
-        title="Energy Visualization - Daily"
-        backable>
-        <EnergyVisualizeSelection/>
+      <Layout title="Energy Visualization - Daily" backable>
+        <EnergyVisualizeSelection />
         <div className="flex flex-col justify-center">
           <div className="m-4">
             <div className="text-2xl font-bold">
-                Electric Energy Consumption
+              Electric Energy Consumption
             </div>
             <div className="flex my-4">
               <EnergyVisualizeStackedBarChart
+                yAxisLabel="Power consumption (kWh)"
                 xAxisList={electricDailyStore.xAxisList}
                 yAxisList={electricDailyStore.yAxisList}
                 xAxisDisplayNameMap={electricDailyStore.nameMap}
@@ -57,11 +65,10 @@ const EnergyDaily: NextPage = () => {
                 convertFunc={ConvertkWhTokgCO2e}
               />
             </div>
-            <div className="text-2xl font-bold">
-                Air Consumption
-            </div>
+            <div className="text-2xl font-bold">Air Consumption</div>
             <div className="flex my-4">
               <EnergyVisualizeStackedBarChart
+                yAxisLabel="Air comsumption (m3)"
                 xAxisList={airDailyStore.xAxisList}
                 yAxisList={airDailyStore.yAxisList}
                 xAxisDisplayNameMap={airDailyStore.nameMap}
@@ -73,7 +80,7 @@ const EnergyDaily: NextPage = () => {
         </div>
       </Layout>
     </>
-  )
-}
+  );
+};
 
-export default EnergyDaily
+export default EnergyDaily;

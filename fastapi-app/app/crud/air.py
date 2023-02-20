@@ -5,11 +5,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.manager import SocketClient
 from app.exceptions import InvalidMonthValue, InvalidYearValue, InvalidDateValue
 from app.helpers import (
-    convert_raw_statement_to_array_with_key, convert_array_to_dict_by_composite_columns
+    convert_raw_statement_to_array_with_key,
+    convert_array_to_dict_by_composite_columns,
 )
 
 import logging
+
 logger = logging.getLogger(__name__)
+
 
 class AirCRUD:
     # this class continas methods to get data for report
@@ -18,21 +21,29 @@ class AirCRUD:
         pass
 
     async def get_air_consumption_daily(
-            self ,machine_info_dict: dict, date: int, month: int, year: int, db: AsyncSession
-        ) -> list:
-        
+        self,
+        machine_info_dict: dict,
+        date: int,
+        month: int,
+        year: int,
+        db: AsyncSession,
+    ) -> list:
         # this function gets data for daily report
 
         # validate correct data type
-        assert isinstance(machine_info_dict, dict), f'[get_air_consumption_daily] machine_info_dict is not a dictionary'
-        assert isinstance(date, int), f'[get_air_consumption_daily] date is not int'
-        assert isinstance(month, int), f'[get_air_consumption_daily] month is not int'
-        assert isinstance(year, int), f'[get_air_consumption_daily] year is not int'
-        assert isinstance(db, AsyncSession), f'[get_air_consumption_daily] year is not AsyncSession'
+        assert isinstance(
+            machine_info_dict, dict
+        ), f"[get_air_consumption_daily] machine_info_dict is not a dictionary"
+        assert isinstance(date, int), f"[get_air_consumption_daily] date is not int"
+        assert isinstance(month, int), f"[get_air_consumption_daily] month is not int"
+        assert isinstance(year, int), f"[get_air_consumption_daily] year is not int"
+        assert isinstance(
+            db, AsyncSession
+        ), f"[get_air_consumption_daily] year is not AsyncSession"
 
-        valve_id_list =[int(x) for x in list(machine_info_dict.keys())]
+        valve_id_list = [int(x) for x in list(machine_info_dict.keys())]
         valve_id_list_str = str(set(valve_id_list))
-        
+
         # get current year as numer
         current_year = datetime.datetime.now().year
 
@@ -65,7 +76,7 @@ class AirCRUD:
         rs = convert_raw_statement_to_array_with_key(
             input=await db.execute(stmt), except_column=[]
         )
-        rs = convert_array_to_dict_by_composite_columns(rs, ['time', 'valve_id'])
+        rs = convert_array_to_dict_by_composite_columns(rs, ["time", "valve_id"])
 
         # define list of x-axis and y-axis
         #   x-axis is the list contains time (every 15 mins)
@@ -86,27 +97,25 @@ class AirCRUD:
 
         # iterate for each time tick
         #   end iteration if the time delta (from start time) > 86400
-        while td.total_seconds() <= 86400:
-            
+        while td.total_seconds() < 86400:
             # get x-axis label in format of HOUR:MINUTE
             # and inittal y-axis with empty dictionary
-            x_str = cur_time_tick.strftime('%H:%M')
+            x_str = cur_time_tick.strftime("%H:%M")
             x_axis.append(x_str)
             y_axis.append({})
 
             # for each valve_id
             for valve_id in valve_id_list:
-
                 # check if data at this mc exist or not
                 #   if yes, get value and put in the y_axis
                 #   otherwise, make it as 0
                 rs_key = (x_str, valve_id)
-                mc = machine_info_dict[valve_id]['mc_no']
+                mc = machine_info_dict[valve_id]["mc_no"]
                 if rs_key in rs:
-                    y_axis[-1][f'{mc}'] = rs[rs_key]['air_value']
-                    total += float(rs[rs_key]['air_value'])
+                    y_axis[-1][f"{mc}"] = rs[rs_key]["air_value"]
+                    total += float(rs[rs_key]["air_value"])
                 else:
-                    y_axis[-1][f'{mc}'] = 0
+                    y_axis[-1][f"{mc}"] = 0
 
             # adjust time tick to next 15 minutes and update time delta
             cur_time_tick = cur_time_tick + datetime.timedelta(minutes=15)
@@ -115,16 +124,19 @@ class AirCRUD:
         return x_axis, y_axis, total
 
     async def get_air_consumption_monthly(
-            self, machine_info_dict: dict, month: int, year: int, db: AsyncSession = None
-        ) -> list:
-        
+        self, machine_info_dict: dict, month: int, year: int, db: AsyncSession = None
+    ) -> list:
         # validate correct data type
-        assert isinstance(machine_info_dict, dict), f'[get_air_consumption_daily] machine_info_dict is not a dictionary'
-        assert isinstance(month, int), f'[get_air_consumption_daily] month is not int'
-        assert isinstance(year, int), f'[get_air_consumption_daily] year is not int'
-        assert isinstance(db, AsyncSession), f'[get_air_consumption_daily] year is not AsyncSession'
+        assert isinstance(
+            machine_info_dict, dict
+        ), f"[get_air_consumption_daily] machine_info_dict is not a dictionary"
+        assert isinstance(month, int), f"[get_air_consumption_daily] month is not int"
+        assert isinstance(year, int), f"[get_air_consumption_daily] year is not int"
+        assert isinstance(
+            db, AsyncSession
+        ), f"[get_air_consumption_daily] year is not AsyncSession"
 
-        valve_id_list =[int(x) for x in list(machine_info_dict.keys())]
+        valve_id_list = [int(x) for x in list(machine_info_dict.keys())]
         valve_id_list_str = str(set(valve_id_list))
 
         # get current year of the query
@@ -143,7 +155,7 @@ class AirCRUD:
         begin_date = datetime.datetime(year, month, 1)
         end_date = datetime.datetime(year, month, date_range[1])
 
-        # get data for the specific date and specific machines  
+        # get data for the specific date and specific machines
         stmt = f"""
         SELECT date(air_timestamp) as date, sum(air_value) as sum_air_value , valve_unit_id as valve_id
         FROM air_consumption
@@ -155,7 +167,7 @@ class AirCRUD:
         rs = convert_raw_statement_to_array_with_key(
             input=await db.execute(stmt), except_column=[]
         )
-        rs = convert_array_to_dict_by_composite_columns(rs, ['date', 'valve_id'])
+        rs = convert_array_to_dict_by_composite_columns(rs, ["date", "valve_id"])
 
         # define list of x-axis and y-axis
         #   x-axis is the list contains date
@@ -168,11 +180,10 @@ class AirCRUD:
 
         # for each date from 1 to the end of the month
         for d in range(1, date_range[1] + 1):
-
             # get x-axis label in format of DD-MM-YYYY
             # and inittal y-axis with empty dictionary
             x_date = datetime.date(year, month, d)
-            x_str = x_date.strftime('%d-%b-%Y')
+            x_str = x_date.strftime("%d-%b-%Y")
             x_axis.append(x_str)
             y_axis.append({})
 
@@ -182,26 +193,30 @@ class AirCRUD:
                 #   if yes, get value and put in the y_axis
                 #   otherwise, make it as 0
                 rs_key = (x_date, valve_id)
-                mc = machine_info_dict[valve_id]['mc_no']
+                mc = machine_info_dict[valve_id]["mc_no"]
                 if rs_key in rs:
-                    y_axis[-1][f'{mc}'] = rs[rs_key]['sum_air_value']
-                    total += float(rs[rs_key]['sum_air_value'])
+                    y_axis[-1][f"{mc}"] = rs[rs_key]["sum_air_value"]
+                    total += float(rs[rs_key]["sum_air_value"])
                 else:
-                    y_axis[-1][f'{mc}'] = 0
+                    y_axis[-1][f"{mc}"] = 0
 
         return x_axis, y_axis, total
 
     async def get_air_consumption_yearly(
-            self, machine_info_dict: dict, year: int, db: AsyncSession = None
-        ) -> list:
-                # this function get air consumption for yearly report
+        self, machine_info_dict: dict, year: int, db: AsyncSession = None
+    ) -> list:
+        # this function get air consumption for yearly report
 
         # validate correct data type
-        assert isinstance(machine_info_dict, dict), f'[get_air_consumption_daily] machine_info_dict is not a dictionary'
-        assert isinstance(year, int), f'[get_air_consumption_daily] year is not int'
-        assert isinstance(db, AsyncSession), f'[get_air_consumption_daily] year is not AsyncSession'
+        assert isinstance(
+            machine_info_dict, dict
+        ), f"[get_air_consumption_daily] machine_info_dict is not a dictionary"
+        assert isinstance(year, int), f"[get_air_consumption_daily] year is not int"
+        assert isinstance(
+            db, AsyncSession
+        ), f"[get_air_consumption_daily] year is not AsyncSession"
 
-        valve_id_list =[int(x) for x in list(machine_info_dict.keys())]
+        valve_id_list = [int(x) for x in list(machine_info_dict.keys())]
         valve_id_list_str = str(set(valve_id_list))
 
         # get current year of the query
@@ -227,7 +242,7 @@ class AirCRUD:
         rs = convert_raw_statement_to_array_with_key(
             input=await db.execute(stmt), except_column=[]
         )
-        rs = convert_array_to_dict_by_composite_columns(rs, ['month', 'valve_id'])
+        rs = convert_array_to_dict_by_composite_columns(rs, ["month", "valve_id"])
 
         # define list of x-axis and y-axis
         #   x-axis is the list contains date
@@ -240,11 +255,10 @@ class AirCRUD:
 
         # for each month
         for m in range(1, 13):
-
             # get x-axis label in format of DD-MM-YYYY
             # and inittal y-axis with empty dictionary
             x_date = datetime.date(year, m, 1)
-            x_str = x_date.strftime('%b')
+            x_str = x_date.strftime("%b")
             x_axis.append(x_str)
             y_axis.append({})
 
@@ -253,24 +267,23 @@ class AirCRUD:
                 # check if data at this mc exist or not
                 #   if yes, get value and put in the y_axis
                 #   otherwise, make it as 0
-                rs_key = (x_date.strftime('%Y-%m'), valve_id)
-                mc = machine_info_dict[valve_id]['mc_no']
+                rs_key = (x_date.strftime("%Y-%m"), valve_id)
+                mc = machine_info_dict[valve_id]["mc_no"]
                 if rs_key in rs:
-                    y_axis[-1][f'{mc}'] = rs[rs_key]['sum_air_value']
-                    total += float(rs[rs_key]['sum_air_value'])
+                    y_axis[-1][f"{mc}"] = rs[rs_key]["sum_air_value"]
+                    total += float(rs[rs_key]["sum_air_value"])
                 else:
-                    y_axis[-1][f'{mc}'] = 0
+                    y_axis[-1][f"{mc}"] = 0
         return x_axis, y_axis, total
 
     def get_air_realtime(
-            self, socketClient: SocketClient, machine_info_dict: dict, keep_interval_secs: int = 0, latest_mins: int = 1
-        ) -> list:
-
+        self, machine_info_dict: dict, keep_interval_secs: int = 0, latest_mins: int = 1
+    ) -> list:
         # get latest air_data
-        air_data = socketClient.latest_air_data
+        air_data = []
 
         # get valve_id_list
-        valve_id_list =[int(x) for x in list(machine_info_dict.keys())]
+        valve_id_list = [int(x) for x in list(machine_info_dict.keys())]
 
         # define list of x-axis and y-axis
         #   x-axis is the list contains date
@@ -283,29 +296,30 @@ class AirCRUD:
         #   start_time_tick = current time - lastest_min mins
         #   cur_time_time = time at tach x-axis (initial with start_time_tick)
         #   td = time delta which is used as criteria to stop the loop {latest_mins * 60}
-        start_time_tick = datetime.datetime.now() - datetime.timedelta(minutes=latest_mins)
+        start_time_tick = datetime.datetime.now() - datetime.timedelta(
+            minutes=latest_mins
+        )
         cur_time_tick = start_time_tick
         td = cur_time_tick - start_time_tick
 
         # iterate for each time tick
         #   end iteration if the time delta (from start time) > 600
         while td.total_seconds() <= latest_mins * 60:
-
             # get x-axis label in format of HOUR:MINUTE:SECOND
             # and inittal y-axis with empty dictionary
-            x_str = cur_time_tick.strftime('%H:%M:%S')
+            x_str = cur_time_tick.strftime("%H:%M:%S")
             x_axis.append(x_str)
             y_axis.append({})
 
             # for each machine number,
             #    if keep_interval_sec is 0 and value is in the query => use it
-            #    otherwise, set to 0 
+            #    otherwise, set to 0
             for valve_id in valve_id_list:
-                mc = machine_info_dict[valve_id]['mc_no']
+                mc = machine_info_dict[valve_id]["mc_no"]
                 if (x_str, valve_id) in air_data:
-                    y_axis[-1][f'{mc}'] = air_data[(x_str, valve_id)]
+                    y_axis[-1][f"{mc}"] = air_data[(x_str, valve_id)]
                 else:
-                    y_axis[-1][f'{mc}'] = 0
+                    y_axis[-1][f"{mc}"] = 0
             cur_time_tick = cur_time_tick + datetime.timedelta(seconds=1)
             td = cur_time_tick - start_time_tick
 
@@ -317,10 +331,10 @@ class AirCRUD:
                     if (x, mc_id) in air_data:
                         y_axis[idx][mc_name] = air_data[(x, mc_id)]
                     else:
-                        x_time = datetime.datetime.strptime(x, '%H:%M:%S')
-                        for delta in range(1, keep_interval_secs+1):
+                        x_time = datetime.datetime.strptime(x, "%H:%M:%S")
+                        for delta in range(1, keep_interval_secs + 1):
                             keep_time = x_time - datetime.timedelta(seconds=delta)
-                            keep_time_str = keep_time.strftime('%H:%M:%S')
+                            keep_time_str = keep_time.strftime("%H:%M:%S")
                             if (keep_time_str, mc_id) in air_data:
                                 y_axis[idx][mc_name] = air_data[(keep_time_str, mc_id)]
                                 break
@@ -328,13 +342,10 @@ class AirCRUD:
         # it is the lastest data for each id which value is not 0 (if possible)
         race_data = []
         for valve_id, machine_info in machine_info_dict.items():
-            race_data.append({
-                'x-axis': f"{machine_info['mc_no']}",
-                'y-axis': 0.0
-            })
+            race_data.append({"x-axis": f"{machine_info['mc_no']}", "y-axis": 0.0})
             for y in y_axis[::-1]:
-                if y[machine_info['mc_no']] > 0:
-                    race_data[-1]['y-axis'] = y[machine_info['mc_no']]
+                if y[machine_info["mc_no"]] > 0:
+                    race_data[-1]["y-axis"] = y[machine_info["mc_no"]]
                     break
-        race_data = sorted(race_data, key=lambda i: i['y-axis'], reverse = True)
+        race_data = sorted(race_data, key=lambda i: i["y-axis"], reverse=True)
         return x_axis, y_axis, race_data
