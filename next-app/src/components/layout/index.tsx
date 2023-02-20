@@ -11,7 +11,11 @@ const Container: FC<IProps> = ({ title, backable, children }: IProps) => {
   return (
     <>
       <Header title={title} backable={backable}/>
-      <div className="w-full p-4 m-auto" style={{ height: "calc(100vh - 60px)", maxWidth: '1400px' }}>{ children }</div>
+      <div className="w-full overflow-y-auto overflow-x-hidden" style={{ height: "calc(100vh - 64px)" }}>
+        <div className="w-full h-full p-4 m-auto" style={{ maxWidth: '1400px' }}>
+          {children}
+        </div>
+      </div>
     </>
   )
 }

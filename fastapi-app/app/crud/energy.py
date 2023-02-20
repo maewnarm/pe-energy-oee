@@ -84,7 +84,7 @@ class EnergyCRUD:
             
             # iterate for each time tick
             #   end iteration if the time delta (from start time) > 86400
-            while td.total_seconds() <= 86400:
+            while td.total_seconds() < 86400:
 
                 # get x-axis label in format of HOUR:MINUTE
                 # and inittal y-axis with empty dictionary
