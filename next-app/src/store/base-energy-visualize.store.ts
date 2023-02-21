@@ -1,24 +1,31 @@
-import { StateCreator } from 'zustand'
-import { IEnergyVisualizeState } from './interface/energy-visualize.interface'
+import { StateCreator } from "zustand";
+import { IEnergyVisualizeState } from "./interface/energy-visualize.interface";
 
-const BaseEnergyStoreInitializer: StateCreator<IEnergyVisualizeState> = (set, get) => ({
+const BaseEnergyStoreInitializer: StateCreator<IEnergyVisualizeState> = (
+  set,
+  get
+) => ({
   xAxisList: [],
   yAxisList: [],
   total: 0,
   nameMap: {},
+  infoNameMap: {},
 
   setXAxisList(xAxisList: string[]) {
-    set({ xAxisList })
+    set({ xAxisList });
   },
   setYAxisList(yAxisList: Array<Record<string, string>>) {
-    set({ yAxisList })
+    set({ yAxisList });
   },
   setTotal(total: number) {
-    set({ total })
+    set({ total });
   },
   setNameMap(nameMap: Record<string, string>) {
-    set({ nameMap })
-  }
-})
+    set({ nameMap });
+  },
+  setInfoNameMap(infoNameMap: Record<string, Array<Record<string, string>>>) {
+    set({ infoNameMap });
+  },
+});
 
-export default BaseEnergyStoreInitializer
+export default BaseEnergyStoreInitializer;

@@ -1,16 +1,17 @@
 export type EnergyResponse = {
-  total: number
-  x_axis: string[]
-  y_axis: Array<Record<string, string>>
-  mc_map: Record<string, string>
-}
+  total: number;
+  x_axis: string[];
+  y_axis: Array<Record<string, string>>;
+  mc_map: Record<string, string>;
+  mc_info_map: Record<string, Array<Record<string, string>>>;
+};
 
 export type EnergyRealtimeRaceResponse = {
-  "x-axis": string
-  "y-axis": string
-}
+  "x-axis": string;
+  "y-axis": string;
+};
 
 export type EnergyRealtimeResponse = {
-  line: EnergyResponse,
-  race: EnergyRealtimeRaceResponse[]
-}
+  line: EnergyResponse;
+  race: EnergyRealtimeRaceResponse[];
+};

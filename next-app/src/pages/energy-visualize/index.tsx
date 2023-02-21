@@ -1,7 +1,7 @@
-import Head from 'next/head'
-import type { NextPage } from 'next'
-import Link from 'next/link'
-import Layout from '../../components/layout'
+import type { NextPage } from "next";
+import Head from "next/head";
+import Link from "next/link";
+import Layout from "../../components/layout";
 
 const EnergyHome: NextPage = () => {
   return (
@@ -12,14 +12,14 @@ const EnergyHome: NextPage = () => {
           <link rel="icon" href="/favicon.ico" />
         </Head>
       </div>
-      <Layout
-        title="Home"
-        backable>
+      <Layout title="Home" backable>
         <div className="w-full h-full flex flex-col justify-center">
           <div className="link-group animate__animated animate__fadeIn text-xl text-center">
-            <Link href={"/energy-visualize/realtime"}>
+            {/* <Link
+              href={"/energy-visualize/realtime"}
+            >
               <p>Energy Visualize - Realtime</p>
-            </Link>
+            </Link> */}
 
             <Link href={"/energy-visualize/daily"}>
               <p>Energy Visualize - Daily</p>
@@ -36,7 +36,7 @@ const EnergyHome: NextPage = () => {
         </div>
       </Layout>
     </>
-  )
-}
+  );
+};
 
-export default EnergyHome
+export default EnergyHome;

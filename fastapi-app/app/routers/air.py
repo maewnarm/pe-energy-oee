@@ -58,18 +58,25 @@ def air_router(product_line_db_list: List[Dict[str, Any]]) -> APIRouter:
         db = await get_pg_async_db(db_user, db_pass, db_server, db_port, db_name)
 
         machine_info_dict = {}
-        machine_name_dict = {}
+        valve_name_dict = {}
         for valve_id in valve_id_list:
             if valve_id in valve_to_machine:
-                machine_no = valve_to_machine[valve_id]["machine_no"]
-                machine_name = valve_to_machine[valve_id]["machine_name"]
-                machine_info_dict[valve_id] = {
-                    "mc_no": machine_no,
-                    "mc_name": machine_name,
-                }
-                machine_name_dict[f"{machine_no}"] = machine_name
+                for mc in valve_to_machine[valve_id]:
+                    machine_no = mc["machine_no"]
+                    machine_name = mc["machine_name"]
+                    valve_name = mc["valve_name"]
+                    if machine_info_dict.get(valve_id) is None:
+                        machine_info_dict[valve_id] = []
+                    machine_info_dict[valve_id] = [
+                        *machine_info_dict[valve_id],
+                        {
+                            "mc_no": machine_no,
+                            "mc_name": machine_name,
+                        },
+                    ]
+                    valve_name_dict[f"{valve_id}"] = valve_name
 
-        return db, machine_info_dict, machine_name_dict
+        return db, machine_info_dict, valve_name_dict
 
     @router.get(
         "/realtime",
@@ -106,12 +113,16 @@ def air_router(product_line_db_list: List[Dict[str, Any]]) -> APIRouter:
     ):
         # this endpoint is used to get historical data to be displayed in the daily report
         try:
-            db, machine_info_dict, machine_name_dict = await _get_db(product, line)
+            db, machine_info_dict, valve_name_dict = await _get_db(product, line)
             x_axis, y_axis, total = await air_crud.get_air_consumption_daily(
                 machine_info_dict, date, month, year, db
             )
             er = AirHistoryReportWithTotal(
-                x_axis=x_axis, y_axis=y_axis, total=total, mc_map=machine_name_dict
+                x_axis=x_axis,
+                y_axis=y_axis,
+                total=total,
+                mc_map=valve_name_dict,
+                mc_info_map=machine_info_dict,
             )
             await db.close()
             return er
@@ -136,12 +147,16 @@ def air_router(product_line_db_list: List[Dict[str, Any]]) -> APIRouter:
     async def get_monthly_report_values(product: str, line: str, year: int, month: int):
         # this endpoint is used to get historical data to be displayed in the monthly report
         try:
-            db, machine_info_dict, machine_name_dict = await _get_db(product, line)
+            db, machine_info_dict, valve_name_dict = await _get_db(product, line)
             x_axis, y_axis, total = await air_crud.get_air_consumption_monthly(
                 machine_info_dict, month, year, db
             )
             er = AirHistoryReportWithTotal(
-                x_axis=x_axis, y_axis=y_axis, total=total, mc_map=machine_name_dict
+                x_axis=x_axis,
+                y_axis=y_axis,
+                total=total,
+                mc_map=valve_name_dict,
+                mc_info_map=machine_info_dict,
             )
             await db.close()
             return er
@@ -163,12 +178,16 @@ def air_router(product_line_db_list: List[Dict[str, Any]]) -> APIRouter:
     async def get_yearly_report_values(product: str, line: str, year: int):
         # this endpoint is used to get historical data to be displayed in the yearly report
         try:
-            db, machine_info_dict, machine_name_dict = await _get_db(product, line)
+            db, machine_info_dict, valve_name_dict = await _get_db(product, line)
             x_axis, y_axis, total = await air_crud.get_air_consumption_yearly(
                 machine_info_dict, year, db
             )
             er = AirHistoryReportWithTotal(
-                x_axis=x_axis, y_axis=y_axis, total=total, mc_map=machine_name_dict
+                x_axis=x_axis,
+                y_axis=y_axis,
+                total=total,
+                mc_map=valve_name_dict,
+                mc_info_map=machine_info_dict,
             )
             await db.close()
             return er

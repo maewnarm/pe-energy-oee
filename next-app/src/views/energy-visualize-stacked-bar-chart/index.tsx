@@ -14,10 +14,12 @@ interface IProps {
   xAxisList: string[];
   yAxisList: Array<Record<string, string>>;
   xAxisDisplayNameMap: Record<string, string>;
+  legendDisplayMap: Record<string, Array<Record<string, string>>>;
   total: number;
 
   xAxisLabel?: string;
   yAxisLabel?: string;
+  yAxisUnit: string;
 
   aspectRatio?: number;
   convertFunc: (value: number) => [number, string, string];
@@ -28,8 +30,10 @@ const EnergyVisualizeStackedBarChart: FC<IProps> = ({
   yAxisList,
   xAxisLabel,
   yAxisLabel,
+  yAxisUnit,
   total,
   xAxisDisplayNameMap,
+  legendDisplayMap,
   aspectRatio,
   convertFunc,
 }: IProps) => {
@@ -93,7 +97,8 @@ const EnergyVisualizeStackedBarChart: FC<IProps> = ({
     }
     // get hidden = true items
     const showedLegends =
-      legend.legendItems?.filter((l) => !l.hidden).map((l) => l.text) || [];
+      // @ts-expect-error
+      legend.legendItems?.filter((l) => !l.hidden).map((l) => l.dataId) || [];
     // re-calculate only showed
     const newTotal = yAxisList.reduce((acc, el) => {
       const sum = Object.entries(el).reduce(
@@ -138,6 +143,7 @@ const EnergyVisualizeStackedBarChart: FC<IProps> = ({
                   color: "black",
                   font: {
                     weight: "bold",
+                    size: 15,
                   },
                 },
               },
@@ -147,16 +153,65 @@ const EnergyVisualizeStackedBarChart: FC<IProps> = ({
             plugins: {
               legend: {
                 position: "bottom" as const,
-                onHover: function (event, legendItem) {
+                labels: {
+                  generateLabels(chart) {
+                    const datasets = chart.data.datasets;
+                    const dataLength = datasets.length;
+                    const {
+                      labels: {
+                        usePointStyle,
+                        pointStyle,
+                        textAlign,
+                        color,
+                        // useBorderRadius,
+                        // borderRadius,
+                      },
+                    } = chart.legend!.options;
+                    const indexArr = Array.apply(null, Array(dataLength)).map(
+                      (_, i) => i
+                    );
+                    return indexArr.map((i) => {
+                      const meta = chart.getDatasetMeta(i);
+                      const style = meta.controller.getStyle(0, false);
+                      const borderWidth = style.borderWidth as number;
+
+                      return {
+                        text: datasets[meta.index].label
+                          ? xAxisDisplayNameMap[datasets[meta.index].label!]
+                          : "",
+                        // extra data key
+                        dataId: datasets[meta.index].label,
+                        fillStyle: style.backgroundColor,
+                        fontColor: color,
+                        hidden: !meta.visible,
+                        lineCap: style.borderCapStyle,
+                        lineDash: style.borderDash,
+                        lineDashOffset: style.borderDashOffset,
+                        lineJoin: style.borderJoinStyle,
+                        lineWidth: (borderWidth + borderWidth) / 4,
+                        strokeStyle: style.borderColor,
+                        pointStyle: pointStyle || style.pointStyle,
+                        rotation: style.rotation,
+                        textAlign: textAlign || style.textAlign,
+                        datasetIndex: meta.index,
+                      } as LegendItem;
+                    });
+                  },
+                },
+                onHover: function (event, legendItem, legend) {
                   if (tooltipRef.current) {
                     tooltipRef.current.innerHTML =
-                      xAxisDisplayNameMap?.[legendItem.text] ?? legendItem.text;
-                    tooltipRef.current.style.display = "block";
+                      // @ts-expect-error
+                      legendDisplayMap[legendItem.dataId]
+                        .map((t) => t.mc_name)
+                        .join("\n") ?? legendItem;
+                    tooltipRef.current.style.display = "flex";
                     tooltipRef.current.style.padding = "2px 8px";
                     tooltipRef.current.style.background = "#000000de";
                     tooltipRef.current.style.color = "white";
-                    tooltipRef.current.style.left = `${(event.x ?? 0) + 5}px`;
-                    tooltipRef.current.style.top = `${(event.y ?? 0) - 15}px`;
+                    tooltipRef.current.style.left = `${(event.x ?? 0) + 25}px`;
+                    tooltipRef.current.style.top = `${(event.y ?? 0) + 30}px`;
+                    tooltipRef.current.style.whiteSpace = "pre-line";
                   }
                 },
                 onLeave: function () {
@@ -172,6 +227,16 @@ const EnergyVisualizeStackedBarChart: FC<IProps> = ({
               },
               annotation: {
                 annotations,
+              },
+              tooltip: {
+                callbacks: {
+                  label: (context) => {
+                    const label = `${
+                      xAxisDisplayNameMap[context.dataset.label!]
+                    } : ${context.parsed.y.toFixed(3)} ${yAxisUnit}`;
+                    return label;
+                  },
+                },
               },
             },
           }}

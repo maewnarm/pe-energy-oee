@@ -60,7 +60,9 @@ const EnergyDaily: NextPage = () => {
                 yAxisLabel="Power consumption (kWh)"
                 xAxisList={electricDailyStore.xAxisList}
                 yAxisList={electricDailyStore.yAxisList}
+                yAxisUnit="kWh"
                 xAxisDisplayNameMap={electricDailyStore.nameMap}
+                legendDisplayMap={electricDailyStore.infoNameMap}
                 total={electricDailyStore.total}
                 convertFunc={ConvertkWhTokgCO2e}
               />
@@ -71,7 +73,9 @@ const EnergyDaily: NextPage = () => {
                 yAxisLabel="Air comsumption (m3)"
                 xAxisList={airDailyStore.xAxisList}
                 yAxisList={airDailyStore.yAxisList}
+                yAxisUnit="m3"
                 xAxisDisplayNameMap={airDailyStore.nameMap}
+                legendDisplayMap={airDailyStore.infoNameMap}
                 total={airDailyStore.total}
                 convertFunc={Convertm3TokgCO2e}
               />

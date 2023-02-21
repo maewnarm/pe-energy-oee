@@ -110,7 +110,8 @@ class AirCRUD:
                 #   if yes, get value and put in the y_axis
                 #   otherwise, make it as 0
                 rs_key = (x_str, valve_id)
-                mc = machine_info_dict[valve_id]["mc_no"]
+                # mc = machine_info_dict[valve_id]["mc_no"]
+                mc = valve_id
                 if rs_key in rs:
                     y_axis[-1][f"{mc}"] = rs[rs_key]["air_value"]
                     total += float(rs[rs_key]["air_value"])
@@ -193,7 +194,8 @@ class AirCRUD:
                 #   if yes, get value and put in the y_axis
                 #   otherwise, make it as 0
                 rs_key = (x_date, valve_id)
-                mc = machine_info_dict[valve_id]["mc_no"]
+                # mc = machine_info_dict[valve_id]["mc_no"]
+                mc = valve_id
                 if rs_key in rs:
                     y_axis[-1][f"{mc}"] = rs[rs_key]["sum_air_value"]
                     total += float(rs[rs_key]["sum_air_value"])
@@ -268,7 +270,8 @@ class AirCRUD:
                 #   if yes, get value and put in the y_axis
                 #   otherwise, make it as 0
                 rs_key = (x_date.strftime("%Y-%m"), valve_id)
-                mc = machine_info_dict[valve_id]["mc_no"]
+                # mc = machine_info_dict[valve_id]["mc_no"]
+                mc = valve_id
                 if rs_key in rs:
                     y_axis[-1][f"{mc}"] = rs[rs_key]["sum_air_value"]
                     total += float(rs[rs_key]["sum_air_value"])

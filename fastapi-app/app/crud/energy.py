@@ -111,7 +111,8 @@ class EnergyCRUD:
                 #   if yes, get value and put in the y_axis
                 #   otherwise, make it as 0
                 rs_key = (x_str, breaker_id)
-                mc = machine_info_dict[breaker_id]["mc_no"]
+                # mc = machine_info_dict[breaker_id]["mc_no"]
+                mc = breaker_id
                 if rs_key in rs:
                     y_axis[-1][f"{mc}"] = rs[rs_key]["energy_value"]
                     total += float(rs[rs_key]["energy_value"])
@@ -198,7 +199,8 @@ class EnergyCRUD:
                 #   if yes, get value and put in the y_axis
                 #   otherwise, make it as 0
                 rs_key = (x_date, breaker_id)
-                mc = machine_info_dict[breaker_id]["mc_no"]
+                # mc = machine_info_dict[breaker_id]["mc_no"]
+                mc = breaker_id
                 if rs_key in rs:
                     y_axis[-1][f"{mc}"] = rs[rs_key]["sum_energy_value"]
                     total += float(rs[rs_key]["sum_energy_value"])
@@ -273,7 +275,8 @@ class EnergyCRUD:
                 #   if yes, get value and put in the y_axis
                 #   otherwise, make it as 0
                 rs_key = (x_date.strftime("%Y-%m"), breaker_id)
-                mc = machine_info_dict[breaker_id]["mc_no"]
+                # mc = machine_info_dict[breaker_id]["mc_no"]
+                mc = breaker_id
                 if rs_key in rs:
                     y_axis[-1][f"{mc}"] = rs[rs_key]["sum_energy_value"]
                     total += float(rs[rs_key]["sum_energy_value"])

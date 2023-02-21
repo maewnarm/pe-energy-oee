@@ -64,7 +64,9 @@ const EnergyYearly: NextPage = () => {
                 yAxisLabel="Power consumption (kWh)"
                 xAxisList={electricYearlyStore.xAxisList}
                 yAxisList={electricYearlyStore.yAxisList}
+                yAxisUnit="kWh"
                 xAxisDisplayNameMap={electricYearlyStore.nameMap}
+                legendDisplayMap={electricYearlyStore.infoNameMap}
                 total={electricYearlyStore.total}
                 convertFunc={ConvertkWhTotCO2e}
               />
@@ -75,7 +77,9 @@ const EnergyYearly: NextPage = () => {
                 yAxisLabel="Air consumption (m3)"
                 xAxisList={airYearlyStore.xAxisList}
                 yAxisList={airYearlyStore.yAxisList}
+                yAxisUnit="m3"
                 xAxisDisplayNameMap={airYearlyStore.nameMap}
+                legendDisplayMap={airYearlyStore.infoNameMap}
                 total={airYearlyStore.total}
                 convertFunc={Convertm3TotCO2e}
               />

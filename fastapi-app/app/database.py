@@ -25,7 +25,7 @@ PG_DB = config["PG_DB"]
 # PG_TRIGGER_FUNC_NAME = config["PG_TRIGGER_FUNC_NAME"]
 # PG_TRIGGER_NAME = config["PG_TRIGGER_NAME"]
 if USE_DOCKER and (PG_SERVER == "localhost" or PG_SERVER == "127.0.0.1"):
-    PG_SERVER = "docker.for.win.localhost"
+    PG_SERVER = "host.docker.internal"
 DSN = (
     f"dbname={PG_DB} user={PG_USER} password={PG_PASS} host={PG_SERVER} port={PG_PORT}"
 )
@@ -48,6 +48,8 @@ JOIN lines
 ON lines_parts.line_id = lines.line_id
 JOIN lines_databases
 ON lines.line_id = lines_databases.line_id
+JOIN lines_energy
+ON lines.line_id = lines_energy.line_id
 WHERE lines_databases.type = 'energy' AND lines_databases.db_provider = 'postgresql'
 """
 cur = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
@@ -73,7 +75,6 @@ except Exception as e:
     raise HTTPException(
         status_code=400, detail=f"error during get all databases information"
     )
-
 
 stmt = f"""
 select products.product_id, products.full_name, parts.part_no, lines_parts.line_id, lines.line_name, lines_databases.line_id,
@@ -152,10 +153,12 @@ except Exception as e:
     )
 
 stmt = f"""
-select machines.machine_no, machines.machine_name, machines_breakers.breaker_id
+select machines.machine_no, machines.machine_name, machines_breakers.breaker_id,breaker_units.breaker_name
 FROM machines
 JOIN machines_breakers
 ON machines.machine_no = machines_breakers.machine_no
+JOIN breaker_units
+ON machines_breakers.breaker_id = breaker_units.id
 """
 cur = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 breaker_to_machine = {}
@@ -164,11 +167,16 @@ try:
     cur.execute(stmt)
     rs = cur.fetchall()
     for row in rs:
-        dict_row = dict(row)
-        breaker_to_machine[row["breaker_id"]] = {
-            "machine_no": row["machine_no"],
-            "machine_name": row["machine_no"],
-        }
+        if breaker_to_machine.get(row["breaker_id"]) is None:
+            breaker_to_machine[row["breaker_id"]] = []
+        breaker_to_machine[row["breaker_id"]] = [
+            *breaker_to_machine[row["breaker_id"]],
+            {
+                "machine_no": row["machine_no"],
+                "machine_name": row["machine_name"],
+                "breaker_name": row["breaker_name"],
+            },
+        ]
 except Exception as e:
     logger.error(f"[databases] error during get all databases information => {e}")
     raise HTTPException(
@@ -176,10 +184,12 @@ except Exception as e:
     )
 
 stmt = f"""
-select machines.machine_no, machines.machine_name, machines_valves.valve_id
+select machines.machine_no, machines.machine_name, machines_valves.valve_id,valve_units.valve_name
 FROM machines
 JOIN machines_valves
 ON machines.machine_no = machines_valves.machine_no
+JOIN valve_units
+ON machines_valves.valve_id = valve_units.id
 """
 cur = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 valve_to_machine = {}
@@ -188,11 +198,16 @@ try:
     cur.execute(stmt)
     rs = cur.fetchall()
     for row in rs:
-        dict_row = dict(row)
-        valve_to_machine[row["valve_id"]] = {
-            "machine_no": row["machine_no"],
-            "machine_name": row["machine_no"],
-        }
+        if valve_to_machine.get(row["valve_id"]) is None:
+            valve_to_machine[row["valve_id"]] = []
+        valve_to_machine[row["valve_id"]] = [
+            *valve_to_machine[row["valve_id"]],
+            {
+                "machine_no": row["machine_no"],
+                "machine_name": row["machine_no"],
+                "valve_name": row["valve_name"],
+            },
+        ]
 except Exception as e:
     logger.error(f"[databases] error during get all databases information => {e}")
     raise HTTPException(
@@ -285,7 +300,7 @@ connection.close()
 async def get_pg_async_db(pg_user, pg_pass, pg_server, pg_port, pg_db):
     # a function which return asycnsession for postgresdb
     if USE_DOCKER and (pg_server == "localhost" or pg_server == "127.0.0.1"):
-        pg_server = "docker.for.win.localhost"
+        pg_server = "host.docker.internal"
     # PostgreSQL async url, engine, and session
     PG_ASYNC_SQLALCHEMY_DATABASE_URL = (
         f"postgresql+asyncpg://{pg_user}:{pg_pass}@{pg_server}:{pg_port}/{pg_db}"

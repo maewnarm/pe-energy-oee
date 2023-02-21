@@ -11,7 +11,7 @@ export async function fetchElectricYearly(
   date: Date | string,
   config?: AxiosRequestConfig
 ): Promise<EnergyResponse> {
-  const { setNameMap, setTotal, setXAxisList, setYAxisList } =
+  const { setNameMap, setInfoNameMap, setTotal, setXAxisList, setYAxisList } =
     ElectricYearlyStore.getState();
   const setIsLoading = CommonStore.getState().setIsLoading;
   const dateObj = new Date(date);
@@ -30,6 +30,7 @@ export async function fetchElectricYearly(
   setXAxisList(data.x_axis);
   setYAxisList(data.y_axis);
   setNameMap(data.mc_map);
+  setInfoNameMap(data.mc_info_map);
   setTotal(data.total);
 
   setIsLoading(false);
@@ -43,7 +44,7 @@ export async function fetchAirYearly(
   date: Date | string,
   config?: AxiosRequestConfig
 ): Promise<EnergyResponse> {
-  const { setNameMap, setTotal, setXAxisList, setYAxisList } =
+  const { setNameMap, setInfoNameMap, setTotal, setXAxisList, setYAxisList } =
     AirYearlyStore.getState();
   const setIsLoading = CommonStore.getState().setIsLoading;
   const dateObj = new Date(date);
@@ -62,6 +63,7 @@ export async function fetchAirYearly(
   setXAxisList(data.x_axis);
   setYAxisList(data.y_axis);
   setNameMap(data.mc_map);
+  setInfoNameMap(data.mc_info_map);
   setTotal(data.total);
 
   setIsLoading(false);

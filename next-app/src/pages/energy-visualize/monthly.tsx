@@ -64,7 +64,9 @@ const EnergyMonthly: NextPage = () => {
                 yAxisLabel="Power consumption (kWh)"
                 xAxisList={electricMonthlyStore.xAxisList}
                 yAxisList={electricMonthlyStore.yAxisList}
+                yAxisUnit="kWh"
                 xAxisDisplayNameMap={electricMonthlyStore.nameMap}
+                legendDisplayMap={electricMonthlyStore.infoNameMap}
                 total={electricMonthlyStore.total}
                 convertFunc={ConvertkWhTotCO2e}
               />
@@ -75,7 +77,9 @@ const EnergyMonthly: NextPage = () => {
                 yAxisLabel="Air consumption (m3)"
                 xAxisList={airMonthlyStore.xAxisList}
                 yAxisList={airMonthlyStore.yAxisList}
+                yAxisUnit="m3"
                 xAxisDisplayNameMap={airMonthlyStore.nameMap}
+                legendDisplayMap={airMonthlyStore.infoNameMap}
                 total={airMonthlyStore.total}
                 convertFunc={Convertm3TotCO2e}
               />

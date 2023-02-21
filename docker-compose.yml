@@ -1,7 +1,7 @@
 version: "3.3"
 services:
   nginx:
-    image: nginx:alpine
+    build: ./nginx
     container_name: nginx_web
     ports:
       - "80:80"
@@ -18,17 +18,18 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./next-app/:/usr/app/
+      # - ./next-app/:/usr/app/
       # - ./next-app/packages.json:/usr/app/packages.json
       - dependencies:/usr/app/node_modules
   fastapi:
     build: ./fastapi-app
     container_name: fastapi
-    ports: 
+    ports:
       - "8000:8000"
     volumes:
       - ./fastapi-app/app/:/code/app/
       - ./fastapi-app/requirements.txt:/code/requirements.txt
+      - ./fastapi-app/.env:/code/.env
       # - fastapi_packages:/usr/local/lib/python3.10/site-packagesd
 volumes:
   dependencies:
