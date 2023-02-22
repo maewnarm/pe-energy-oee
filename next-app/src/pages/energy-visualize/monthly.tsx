@@ -53,7 +53,7 @@ const EnergyMonthly: NextPage = () => {
         </Head>
       </div>
       <Layout title="Energy Visualization - Monthly" backable>
-        <EnergyVisualizeSelection picker="month" />
+        <EnergyVisualizeSelection datePickerLabel="Month:" picker="month" />
         <div className="flex flex-col justify-center">
           <div className="m-4">
             <div className="text-2xl font-bold">

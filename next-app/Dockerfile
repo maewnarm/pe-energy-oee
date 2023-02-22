@@ -11,14 +11,14 @@ RUN yarn global add pnpm && pnpm i;
 
 # Rebuild the source code only when needed
 FROM node:16-alpine AS builder
-ARG BUILD_ENV=.env
+ARG BUILD_ENV=.env.production
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 RUN find . -type f -name '.env**.*' -delete
 
-COPY ./$BUILD_ENV .env
+COPY ./$BUILD_ENV .env.production
 
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry

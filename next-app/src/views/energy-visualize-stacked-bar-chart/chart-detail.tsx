@@ -31,24 +31,24 @@ const ChartDetail: FC<IProps> = ({
         <div className="text-sm font-bold">Total</div>
         <div className="flex text-sm justify-end font-bold items-center">
           <Tooltip title={totalLine1}>
-            <div className="text-end truncate text-gray-600 bg-gray-200 text-2xl px-2">
+            <div className="text-end truncate text-gray-600 bg-gray-200 text-xl px-2">
               {totalLine1.toFixed(3)}
             </div>
           </Tooltip>
-          <div className="ml-2 text-lg">{totalLine1Text}</div>
         </div>
+        <div className="ml-1 text-xs flex justify-end">{totalLine1Text}</div>
       </div>
 
       <div className="my-2">
         <div className="text-sm font-bold">CO 2 emission</div>
         <div className="flex text-sm justify-end font-bold items-center">
           <Tooltip title={totalLine2}>
-            <div className="text-end truncate text-gray-600 bg-gray-200 text-2xl px-2">
+            <div className="text-end truncate text-gray-600 bg-gray-200 text-xl px-2">
               {totalLine2.toFixed(3)}
             </div>
           </Tooltip>
-          <div className="ml-4 text-lg">{totalLine2Text}</div>
         </div>
+        <div className="ml-1 text-xs flex justify-end">{totalLine2Text}</div>
       </div>
     </div>
   );

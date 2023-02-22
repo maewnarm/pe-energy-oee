@@ -49,7 +49,7 @@ const EnergyDaily: NextPage = () => {
         </Head>
       </div>
       <Layout title="Energy Visualization - Daily" backable>
-        <EnergyVisualizeSelection />
+        <EnergyVisualizeSelection datePickerLabel="Date:" />
         <div className="flex flex-col justify-center">
           <div className="m-4">
             <div className="text-2xl font-bold">

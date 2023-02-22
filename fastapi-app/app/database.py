@@ -204,7 +204,7 @@ try:
             *valve_to_machine[row["valve_id"]],
             {
                 "machine_no": row["machine_no"],
-                "machine_name": row["machine_no"],
+                "machine_name": row["machine_name"],
                 "valve_name": row["valve_name"],
             },
         ]

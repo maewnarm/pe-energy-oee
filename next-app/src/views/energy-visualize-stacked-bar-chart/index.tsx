@@ -203,14 +203,17 @@ const EnergyVisualizeStackedBarChart: FC<IProps> = ({
                     tooltipRef.current.innerHTML =
                       // @ts-expect-error
                       legendDisplayMap[legendItem.dataId]
-                        .map((t) => t.mc_name)
+                        .map((t) => `${t.mc_no} [${t.mc_name}]`)
                         .join("\n") ?? legendItem;
                     tooltipRef.current.style.display = "flex";
                     tooltipRef.current.style.padding = "2px 8px";
                     tooltipRef.current.style.background = "#000000de";
                     tooltipRef.current.style.color = "white";
-                    tooltipRef.current.style.left = `${(event.x ?? 0) + 25}px`;
-                    tooltipRef.current.style.top = `${(event.y ?? 0) + 30}px`;
+                    console.log(tooltipRef.current.clientHeight);
+                    tooltipRef.current.style.left = `${(event.x ?? 0) + 15}px`;
+                    tooltipRef.current.style.top = `${
+                      (event.y ?? 0) + 5 - tooltipRef.current.clientHeight
+                    }px`;
                     tooltipRef.current.style.whiteSpace = "pre-line";
                   }
                 },
