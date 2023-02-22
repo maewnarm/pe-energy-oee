@@ -37,8 +37,8 @@ print(DSN)
 connection = psycopg2.connect(DSN)
 connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
 stmt = f"""
-select products.product_id, products.full_name, parts.part_no, lines_parts.line_id, lines.line_name, lines.breaker_list,
-    lines.valve_list, lines_databases.db_server, lines_databases.db_port, lines_databases.db_user, lines_databases.db_pass, lines_databases.db_name, lines_databases.db_provider
+select products.product_id, products.full_name, parts.part_no, lines_parts.line_id, lines.line_name, lines_energy.breaker_list,
+    lines_energy.valve_list, lines_databases.db_server, lines_databases.db_port, lines_databases.db_user, lines_databases.db_pass, lines_databases.db_name, lines_databases.db_provider
 FROM products
 JOIN parts
 ON products.product_id = parts.product_id
