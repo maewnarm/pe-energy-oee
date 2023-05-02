@@ -3,15 +3,24 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 # need import models for auto create
-from app.routers import energy_router, system_router, air_router, oee_router
+from app.routers import (
+    energy_router,
+    system_router,
+    air_router,
+    oee_router,
+    lineinfo_router,
+)
 from app.database import (
     product_line_db_energy,
     product_line_db_oee_cycletime,
     product_line_db_oee_fault_occurrence,
+    get_lineinfo_db,
 )
 from app.manager import SocketClient
 
-app = FastAPI()
+app = FastAPI(
+    docs_url="/api/docs", redoc_url="/api/redoc", openapi_url="/api/openapi.json"
+)
 
 origins = ["*"]
 
@@ -34,6 +43,9 @@ app.include_router(air_router(product_line_db_energy), prefix="/api/air")
 app.include_router(
     oee_router(product_line_db_oee_cycletime, product_line_db_oee_fault_occurrence),
     prefix="/api/oee",
+)
+app.include_router(
+    lineinfo_router(product_line_db_energy, get_lineinfo_db), prefix="/api/lineinfo"
 )
 app.include_router(
     system_router(

@@ -79,8 +79,10 @@ export const ParseAxisToStackedAreaChartData = (
 
 export const ParseAxisToStackedBarChartData = (
   xAxisList: string[],
-  yAxisList: Array<Record<string, string>>
-): ChartData<"bar", number[]> => {
+  yAxisList: Array<Record<string, string>>,
+  y1AxisList?: number[],
+  y1AxisMultiplier?: number
+): ChartData<"bar" | "line", number[]> => {
   const labels: string[] = xAxisList;
   const yAxisKeyToAxisData: Record<string, number[]> = {};
   yAxisList.forEach((yAxis) => {
@@ -94,21 +96,43 @@ export const ParseAxisToStackedBarChartData = (
     }
   });
 
-  const datasets: ChartDataset<"bar", number[]>[] = Object.keys(
+  const datasets: ChartDataset<"bar" | "line", number[]>[] = Object.keys(
     yAxisKeyToAxisData
-  ).map((yAxisKey, index) => {
+  ).reduce((acc, yAxisKey, index) => {
     const color = util.getColorByIndex(index);
     const label = yAxisKey;
     const data = yAxisKeyToAxisData[yAxisKey];
+    const addData: ChartDataset<"bar" | "line", number[]>[] = [
+      {
+        borderColor: color,
+        backgroundColor: color,
+        label,
+        data,
+        yAxisID: "y",
+      } as ChartDataset<"bar", number[]>,
+    ];
 
-    return {
-      borderColor: color,
-      backgroundColor: color,
-      label,
-      data,
-    };
-  });
+    if (!!y1AxisList) {
+      const dataPerVolume = data.map((d, idx) =>
+        y1AxisList[idx] !== 0 && y1AxisMultiplier
+          ? (d * y1AxisMultiplier) / y1AxisList[idx]
+          : 0
+      );
+      addData.push({
+        type: "line" as const,
+        borderColor: color,
+        borderWidth: 1,
+        label,
+        data: dataPerVolume,
+        fill: false,
+        yAxisID: "y1",
+      });
+    }
 
+    return [...acc, ...addData];
+  }, [] as ChartDataset<"bar" | "line", number[]>[]);
+
+  datasets.sort((a, b) => ((a.type || "") > (b.type || "") ? -1 : 1));
   return {
     labels,
     datasets,

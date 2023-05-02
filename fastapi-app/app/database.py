@@ -4,6 +4,7 @@ import psycopg2.extras
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
 from dotenv import dotenv_values
 
 import logging
@@ -24,11 +25,19 @@ PG_DB = config["PG_DB"]
 # PG_NOTIFY_CHANNEL = config["PG_NOTIFY_CHANNEL"]
 # PG_TRIGGER_FUNC_NAME = config["PG_TRIGGER_FUNC_NAME"]
 # PG_TRIGGER_NAME = config["PG_TRIGGER_NAME"]
+# Line Info DB
+LIDB_USER = config["LIDB_USER"]
+LIDB_PASS = config["LIDB_PASS"]
+LIDB_SERVER = config["LIDB_SERVER"]
+LIDB_PORT = config["LIDB_PORT"]
+LIDB_DB = config["LIDB_DB"]
+
 if USE_DOCKER and (PG_SERVER == "localhost" or PG_SERVER == "127.0.0.1"):
     PG_SERVER = "host.docker.internal"
 DSN = (
     f"dbname={PG_DB} user={PG_USER} password={PG_PASS} host={PG_SERVER} port={PG_PORT}"
 )
+CNSTR = ""
 print(DSN)
 # connect to the master database to get
 #   1. db connection information for each product/line
@@ -314,3 +323,17 @@ async def get_pg_async_db(pg_user, pg_pass, pg_server, pg_port, pg_db):
     # function to get pg async session
     db = pg_async_session()
     return db
+
+
+# line info database (mssql)
+MG_SQLALCHEMY_DATABASE_URL = f"mssql+pyodbc://{LIDB_USER}:{LIDB_PASS}@{LIDB_SERVER}:{LIDB_PORT}/{LIDB_DB}?driver=ODBC+Driver+17+for+SQL+Server"
+ms_engine = create_engine(MG_SQLALCHEMY_DATABASE_URL)
+ms_session = sessionmaker(autocommit=False, autoflush=False, bind=ms_engine)
+
+
+def get_lineinfo_db():
+    db = ms_session()
+    try:
+        yield db
+    finally:
+        db.close()

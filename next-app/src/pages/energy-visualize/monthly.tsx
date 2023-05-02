@@ -1,4 +1,5 @@
 import { fetchAirMonthly, fetchElectricMonthly } from "@/actions";
+import { fetchProductVolumeMonthly } from "@/actions/lineinfo.actions";
 import Layout from "@/components/layout";
 import { ConvertkWhTotCO2e, Convertm3TotCO2e } from "@/parser/unit.parser";
 import {
@@ -6,6 +7,8 @@ import {
   ElectricMonthlyStore,
   EnergySettingStore,
 } from "@/store";
+import { CommonStore } from "@/store/common.store";
+import { LineInfoStore } from "@/store/lineinfo.store";
 import EnergyVisualizeSelection from "@/views/energy-visualize-selection";
 import EnergyVisualizeStackedBarChart from "@/views/energy-visualize-stacked-bar-chart";
 import type { NextPage } from "next";
@@ -17,30 +20,61 @@ const EnergyMonthly: NextPage = () => {
     EnergySettingStore();
   const electricMonthlyStore = ElectricMonthlyStore();
   const airMonthlyStore = AirMonthlyStore();
+  const prodVolumePlan = LineInfoStore((state) => state.prodVolumePlan);
+  const prodVolumeActual = LineInfoStore((state) => state.prodVolumeActual);
+  const setIsLoading = CommonStore.getState().setIsLoading;
 
   useEffect(() => {
     let electricAbortController: AbortController;
     let airAbortController: AbortController;
+    let prodVolumeController: AbortController;
 
-    if (
-      selectedProduct !== "" &&
-      selectedProductLine !== "" &&
-      selectedDate !== ""
-    ) {
-      electricAbortController = new AbortController();
-      fetchElectricMonthly(selectedProduct, selectedProductLine, selectedDate, {
-        signal: electricAbortController.signal,
-      });
+    (async function () {
+      if (
+        selectedProduct !== "" &&
+        selectedProductLine !== "" &&
+        selectedDate !== ""
+      ) {
+        setIsLoading(true);
 
-      airAbortController = new AbortController();
-      fetchAirMonthly(selectedProduct, selectedProductLine, selectedDate, {
-        signal: electricAbortController.signal,
-      });
-    }
+        electricAbortController = new AbortController();
+        await fetchElectricMonthly(
+          selectedProduct,
+          selectedProductLine,
+          selectedDate,
+          {
+            signal: electricAbortController.signal,
+          }
+        );
+
+        airAbortController = new AbortController();
+        await fetchAirMonthly(
+          selectedProduct,
+          selectedProductLine,
+          selectedDate,
+          {
+            signal: electricAbortController.signal,
+          }
+        );
+
+        prodVolumeController = new AbortController();
+        await fetchProductVolumeMonthly(
+          selectedProduct,
+          selectedProductLine,
+          selectedDate,
+          {
+            signal: prodVolumeController.signal,
+          }
+        );
+
+        setIsLoading(false);
+      }
+    })();
 
     return () => {
       electricAbortController?.abort();
       airAbortController?.abort();
+      prodVolumeController?.abort();
     };
   }, [selectedProduct, selectedProductLine, selectedDate]);
 
@@ -61,10 +95,14 @@ const EnergyMonthly: NextPage = () => {
             </div>
             <div className="flex my-4">
               <EnergyVisualizeStackedBarChart
-                yAxisLabel="Power consumption (kWh)"
                 xAxisList={electricMonthlyStore.xAxisList}
                 yAxisList={electricMonthlyStore.yAxisList}
+                yAxisLabel="Power consumption (kWh)"
                 yAxisUnit="kWh"
+                y1AxisList={prodVolumeActual}
+                y1AxisLabel="Power consumption / piece (Wh/pc.)"
+                y1AxisUnit="Wh/pc."
+                y1AxisMultiplier={1000}
                 xAxisDisplayNameMap={electricMonthlyStore.nameMap}
                 legendDisplayMap={electricMonthlyStore.infoNameMap}
                 total={electricMonthlyStore.total}
@@ -78,6 +116,10 @@ const EnergyMonthly: NextPage = () => {
                 xAxisList={airMonthlyStore.xAxisList}
                 yAxisList={airMonthlyStore.yAxisList}
                 yAxisUnit="m3"
+                y1AxisList={prodVolumeActual}
+                y1AxisLabel="Air consumption / piece (L/pc.)"
+                y1AxisUnit="L/pc."
+                y1AxisMultiplier={1000}
                 xAxisDisplayNameMap={airMonthlyStore.nameMap}
                 legendDisplayMap={airMonthlyStore.infoNameMap}
                 total={airMonthlyStore.total}

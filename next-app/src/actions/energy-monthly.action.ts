@@ -13,7 +13,6 @@ export async function fetchElectricMonthly(
 ): Promise<EnergyResponse> {
   const { setNameMap, setInfoNameMap, setTotal, setXAxisList, setYAxisList } =
     ElectricMonthlyStore.getState();
-  const setIsLoading = CommonStore.getState().setIsLoading;
   const dateObj = new Date(date);
   const query = {
     product: product,
@@ -22,7 +21,7 @@ export async function fetchElectricMonthly(
     year: dateObj.getFullYear(),
   };
   const serializedQuery = util.serializeQuery(query);
-  setIsLoading(true);
+
   const { data } = await axiosInstance.get<EnergyResponse>(
     `energy/monthly?${serializedQuery}`,
     config
@@ -33,8 +32,6 @@ export async function fetchElectricMonthly(
   setNameMap(data.mc_map);
   setInfoNameMap(data.mc_info_map);
   setTotal(data.total);
-
-  setIsLoading(false);
 
   return data;
 }
@@ -47,7 +44,7 @@ export async function fetchAirMonthly(
 ): Promise<EnergyResponse> {
   const { setNameMap, setInfoNameMap, setTotal, setXAxisList, setYAxisList } =
     AirMonthlyStore.getState();
-  const setIsLoading = CommonStore.getState().setIsLoading;
+
   const dateObj = new Date(date);
   const query = {
     product: product,
@@ -56,7 +53,7 @@ export async function fetchAirMonthly(
     year: dateObj.getFullYear(),
   };
   const serializedQuery = util.serializeQuery(query);
-  setIsLoading(true);
+
   const { data } = await axiosInstance.get<EnergyResponse>(
     `air/monthly?${serializedQuery}`,
     config
@@ -67,8 +64,6 @@ export async function fetchAirMonthly(
   setNameMap(data.mc_map);
   setInfoNameMap(data.mc_info_map);
   setTotal(data.total);
-
-  setIsLoading(false);
 
   return data;
 }
