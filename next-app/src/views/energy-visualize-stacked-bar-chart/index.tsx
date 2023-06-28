@@ -27,6 +27,8 @@ interface IProps {
   y1AxisUnit?: string;
   y1AxisMultiplier?: number;
 
+  convertDescription?: string;
+
   aspectRatio?: number;
   convertFunc: (value: number) => [number, string, string];
 }
@@ -44,6 +46,7 @@ const EnergyVisualizeStackedBarChart: FC<IProps> = ({
   total,
   xAxisDisplayNameMap,
   legendDisplayMap,
+  convertDescription,
   aspectRatio,
   convertFunc,
 }: IProps) => {
@@ -205,7 +208,7 @@ const EnergyVisualizeStackedBarChart: FC<IProps> = ({
     if (y1AxisList && y1AxisMultiplier && y1Total) {
       setPerTotal((total * y1AxisMultiplier) / y1Total);
     }
-  }, [total]);
+  }, [total, y1AxisList, y1AxisMultiplier, y1Total]);
 
   useEffect(() => {
     chartRef.current?.data.datasets.forEach((d, idx) => {
@@ -228,14 +231,14 @@ const EnergyVisualizeStackedBarChart: FC<IProps> = ({
       <div className="absolute rounded ml-2 mb-4" ref={tooltipRef}></div>
       <div className="w-4/5">
         <div className="flex w-fit ml-auto mb-2">
-          <span className="mr-1">Power consumption :</span>
+          <span className="mr-1">{`${yAxisLabel} :`}</span>
           <Switch
             checkedChildren="show"
             unCheckedChildren="hide"
             checked={isBarShow}
             onChange={(checked) => setIsBarShow(checked)}
           />
-          <span className="ml-5 mr-1">Power consumption per piece :</span>
+          <span className="ml-5 mr-1">{`${yAxisLabel} per piece :`}</span>
           <Switch
             checkedChildren="show"
             unCheckedChildren="hide"
@@ -410,9 +413,9 @@ const EnergyVisualizeStackedBarChart: FC<IProps> = ({
         <ChartDetail
           totalLine1Text={fromUnit}
           totalLine1={calTotal}
-          perUnitText={`[${y1Total?.toLocaleString(
-            "en-US"
-          )} pcs./M] ${y1AxisUnit}`}
+          perUnitText={`[${y1Total?.toLocaleString("en-US") || "-"} pcs./M] ${
+            y1AxisUnit || ""
+          }`}
           perUnit={perTotal}
           totalLine2Text={toUnit}
           totalLine2={convertedTotal}
@@ -420,6 +423,7 @@ const EnergyVisualizeStackedBarChart: FC<IProps> = ({
           onTargetAxisYChange={setTargetAxisY}
           targetAxisY1={targetAxisY1}
           onTargetAxisY1Change={setTargetAxisY1}
+          convertDescription={convertDescription}
         />
       </div>
     </div>

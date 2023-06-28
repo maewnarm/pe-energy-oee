@@ -69,6 +69,7 @@ const EnergyYearly: NextPage = () => {
                 legendDisplayMap={electricYearlyStore.infoNameMap}
                 total={electricYearlyStore.total}
                 convertFunc={ConvertkWhTotCO2e}
+                convertDescription="1 kWh = 0.595 kgCO2e"
               />
             </div>
             <div className="text-2xl font-bold">Air Consumption</div>
@@ -82,6 +83,7 @@ const EnergyYearly: NextPage = () => {
                 legendDisplayMap={airYearlyStore.infoNameMap}
                 total={airYearlyStore.total}
                 convertFunc={Convertm3TotCO2e}
+                convertDescription="1 m3 = 0.0765 kgCO2e"
               />
             </div>
           </div>

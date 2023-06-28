@@ -9,12 +9,15 @@ from app.routers import (
     air_router,
     oee_router,
     lineinfo_router,
+    factory_router,
 )
 from app.database import (
     product_line_db_energy,
     product_line_db_oee_cycletime,
     product_line_db_oee_fault_occurrence,
-    get_lineinfo_db,
+    # get_lineinfo_db,
+    lineinfo_db_connect,
+    get_pg_factory_async_db,
 )
 from app.manager import SocketClient
 
@@ -45,7 +48,11 @@ app.include_router(
     prefix="/api/oee",
 )
 app.include_router(
-    lineinfo_router(product_line_db_energy, get_lineinfo_db), prefix="/api/lineinfo"
+    lineinfo_router(product_line_db_energy, lineinfo_db_connect), prefix="/api/lineinfo"
+)
+app.include_router(
+    factory_router(product_line_db_energy, get_pg_factory_async_db),
+    prefix="/api/factorye",
 )
 app.include_router(
     system_router(

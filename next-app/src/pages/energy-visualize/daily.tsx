@@ -65,6 +65,7 @@ const EnergyDaily: NextPage = () => {
                 legendDisplayMap={electricDailyStore.infoNameMap}
                 total={electricDailyStore.total}
                 convertFunc={ConvertkWhTokgCO2e}
+                convertDescription="1 kWh = 0.595 kgCO2e"
               />
             </div>
             <div className="text-2xl font-bold">Air Consumption</div>
@@ -78,6 +79,7 @@ const EnergyDaily: NextPage = () => {
                 legendDisplayMap={airDailyStore.infoNameMap}
                 total={airDailyStore.total}
                 convertFunc={Convertm3TokgCO2e}
+                convertDescription="1 m3 = 0.0765 kgCO2e"
               />
             </div>
           </div>

@@ -30,6 +30,9 @@ services:
       - ./fastapi-app/app/:/code/app/
       - ./fastapi-app/requirements.txt:/code/requirements.txt
       - ./fastapi-app/.env:/code/.env
+      - ./fastapi-app/linkage1.json:/code/linkage1.json
+      - ./fastapi-app/linkage2.json:/code/linkage2.json
+      - ./fastapi-app/linkage3.json:/code/linkage3.json
       # - fastapi_packages:/usr/local/lib/python3.10/site-packagesd
     command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
     # comment 'command' when need to enable fast reload

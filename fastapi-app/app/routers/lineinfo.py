@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
 from sqlalchemy.orm import Session
+from pyodbc import Connection
 from typing import Generator, List, Dict, Any
 from app.helpers import api_key_auth
 from app.crud.lineinfo import LineinfoCRUD
@@ -15,19 +16,19 @@ def lineinfo_router(
     product_line_db_list: List[Dict[str, Any]], lidb: Generator
 ) -> APIRouter:
     router = APIRouter()
-    crud = LineinfoCRUD
+    crud = LineinfoCRUD()
 
     @router.get("/ping")
     def ping():
         return {"ping": "pong"}
 
     @router.get("/all", dependencies=[Depends(api_key_auth)])
-    def get_all(db: Session = Depends(lidb)):
+    def get_all(db: Connection = Depends(lidb)):
         return crud.get_all(db)
 
     @router.get("/linemonth", dependencies=[Depends(api_key_auth)])
     def get_lineinfo_by_line_monthy(
-        product: str, line: str, month: int, year: int, db: Session = Depends(lidb)
+        product: str, line: str, month: int, year: int, db: Connection = Depends(lidb)
     ):
         try:
             if (product, line) not in product_line_db_list:

@@ -1,6 +1,7 @@
 from fastapi.exceptions import HTTPException
 import psycopg2
 import psycopg2.extras
+import pyodbc
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
@@ -31,6 +32,13 @@ LIDB_PASS = config["LIDB_PASS"]
 LIDB_SERVER = config["LIDB_SERVER"]
 LIDB_PORT = config["LIDB_PORT"]
 LIDB_DB = config["LIDB_DB"]
+
+# factory energy db
+FACDB_USER = config["FACDB_USER"]
+FACDB_PASS = config["FACDB_PASS"]
+FACDB_SERVER = config["FACDB_SERVER"]
+FACDB_PORT = config["FACDB_PORT"]
+FACDB_DB = config["FACDB_DB"]
 
 if USE_DOCKER and (PG_SERVER == "localhost" or PG_SERVER == "127.0.0.1"):
     PG_SERVER = "host.docker.internal"
@@ -326,14 +334,51 @@ async def get_pg_async_db(pg_user, pg_pass, pg_server, pg_port, pg_db):
 
 
 # line info database (mssql)
-MG_SQLALCHEMY_DATABASE_URL = f"mssql+pyodbc://{LIDB_USER}:{LIDB_PASS}@{LIDB_SERVER}:{LIDB_PORT}/{LIDB_DB}?driver=ODBC+Driver+17+for+SQL+Server"
-ms_engine = create_engine(MG_SQLALCHEMY_DATABASE_URL)
-ms_session = sessionmaker(autocommit=False, autoflush=False, bind=ms_engine)
+# MG_SQLALCHEMY_DATABASE_URL = f"mssql+pyodbc://{LIDB_USER}:{LIDB_PASS}@{LIDB_SERVER}:{LIDB_PORT}/{LIDB_DB}?driver=ODBC+Driver+17+for+SQL+Server"
+# ms_engine = create_engine(MG_SQLALCHEMY_DATABASE_URL)
+# ms_session = sessionmaker(autocommit=False, autoflush=False, bind=ms_engine)
 
 
-def get_lineinfo_db():
-    db = ms_session()
+# def get_lineinfo_db():
+#     db = ms_session()
+#     try:
+#         yield db
+#     finally:
+#         db.close()
+
+
+def lineinfo_db_connect():
+    db_server = f"{LIDB_SERVER},{LIDB_PORT}"
+    cnxn = pyodbc.connect(
+        "DRIVER={ODBC Driver 17 for SQL Server};Encrypt=no;SERVER="
+        + db_server
+        + ";DATABASE="
+        + LIDB_DB
+        + ";ENCRYPT=yes;UID="
+        + LIDB_USER
+        + ";PWD="
+        + LIDB_PASS,
+        ansi=True,
+        autocommit=False,
+    )
+    # cnxn.setdecoding(pyodbc.SQL_CHAR, encoding="utf8")
+    # cnxn.setdecoding(pyodbc.SQL_WCHAR, encoding="utf8")
+    # cnxn.setencoding(encoding="utf8")
     try:
-        yield db
+        yield cnxn
     finally:
-        db.close()
+        cnxn.close()
+
+
+async def get_pg_factory_async_db():
+    # PostgreSQL async url, engine, and session
+    PG_ASYNC_SQLALCHEMY_DATABASE_URL = f"postgresql+asyncpg://{FACDB_USER}:{FACDB_PASS}@{FACDB_SERVER}:{FACDB_PORT}/{FACDB_DB}"
+    pg_async_engine = create_async_engine(
+        PG_ASYNC_SQLALCHEMY_DATABASE_URL, echo=False, pool_size=40, max_overflow=0
+    )
+    pg_async_session = sessionmaker(
+        pg_async_engine, expire_on_commit=False, class_=AsyncSession
+    )
+    # function to get pg async session
+    db = pg_async_session()
+    return db

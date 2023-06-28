@@ -107,6 +107,7 @@ const EnergyMonthly: NextPage = () => {
                 legendDisplayMap={electricMonthlyStore.infoNameMap}
                 total={electricMonthlyStore.total}
                 convertFunc={ConvertkWhTotCO2e}
+                convertDescription="1 kWh = 0.595 kgCO2e"
               />
             </div>
             <div className="text-2xl font-bold">Air Consumption</div>
@@ -117,13 +118,14 @@ const EnergyMonthly: NextPage = () => {
                 yAxisList={airMonthlyStore.yAxisList}
                 yAxisUnit="m3"
                 y1AxisList={prodVolumeActual}
-                y1AxisLabel="Air consumption / piece (L/pc.)"
-                y1AxisUnit="L/pc."
-                y1AxisMultiplier={1000}
+                y1AxisLabel="Air consumption / piece (m3/pc.)"
+                y1AxisUnit="m3/pc."
+                y1AxisMultiplier={1}
                 xAxisDisplayNameMap={airMonthlyStore.nameMap}
                 legendDisplayMap={airMonthlyStore.infoNameMap}
                 total={airMonthlyStore.total}
                 convertFunc={Convertm3TotCO2e}
+                convertDescription="1 m3 = 0.0765 kgCO2e"
               />
             </div>
           </div>

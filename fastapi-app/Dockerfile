@@ -17,6 +17,6 @@ RUN pip install --no-cache-dir -r /code/requirements.txt
 COPY ./app /code/app
 COPY ./main.py /code/main.py
 # COPY ./.env /code/.env
-COPY ./linkage1.json /code/linkage1.json
-COPY ./linkage2.json /code/linkage2.json
+# COPY ./linkage1.json /code/linkage1.json
+# COPY ./linkage2.json /code/linkage2.json
 CMD ["uvicorn", "main:app","--host","0.0.0.0","--port","8000","--reload"]

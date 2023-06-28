@@ -38,6 +38,10 @@ const EnergyVisualizeSelection: FC<IProps> = ({
     };
   }, []);
 
+  useEffect(() => {
+    setSelectedProductLine("");
+  }, [selectedProduct]);
+
   return (
     <div className="grid gap-4 grid-cols-3">
       <Selection

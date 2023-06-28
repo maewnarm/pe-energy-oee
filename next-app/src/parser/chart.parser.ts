@@ -121,7 +121,7 @@ export const ParseAxisToStackedBarChartData = (
       addData.push({
         type: "line" as const,
         borderColor: color,
-        borderWidth: 1,
+        borderWidth: 2,
         label,
         data: dataPerVolume,
         fill: false,

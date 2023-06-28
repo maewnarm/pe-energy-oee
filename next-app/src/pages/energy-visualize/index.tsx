@@ -32,6 +32,10 @@ const EnergyHome: NextPage = () => {
             <Link href={"/energy-visualize/yearly"}>
               <p>Energy Visualize - Yearly</p>
             </Link>
+
+            <Link href={"/energy-visualize/perunit"}>
+              <p>Energy Visualize - Per Unit</p>
+            </Link>
           </div>
         </div>
       </Layout>
