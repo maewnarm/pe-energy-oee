@@ -53,7 +53,7 @@ class FactoryCRUD:
             node_id = linkage_factory_energy[str(line)]
         if month < 1 or month > 12:
             raise InvalidMonthValue
-
+        print("node_id", node_id, year, month)
         stmt = f"""
             SELECT date_trunc('minute',logtime) as logtime_,group_no,node_id,mea_type,avg(value) AS value FROM energy_tb_{year}_{month:02d}
             WHERE node_id IN ({",".join(node_id)}) AND 
